@@ -11,6 +11,8 @@
 
 下列命令均从**作者源码仓库根目录**运行。本仓库不是作者源码的替代品。
 
+也可先运行 `/path/to/Hu_SGDA/scripts/prepare_source.sh /path/to/SGAD-SLAM`，自动检出指定版本、应用补丁并复制诊断配置。该脚本要求源码目录无未提交改动，已有改动时会停止以防覆盖。
+
 ```bash
 git checkout 2dca26dcef242edf07c3c361be390d3ca254aa43
 git apply /path/to/Hu_SGDA/patches/runtime_compat.patch

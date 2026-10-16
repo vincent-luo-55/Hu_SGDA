@@ -2,7 +2,7 @@
 
 这是对 [Hu 与 Han，*SGAD-SLAM: Splatting Gaussians at Adjusted Depth for Better Radiance Fields in RGBD SLAM*](https://arxiv.org/html/2603.21055v1) 的**个人复现记录**。算法和原始实现来自作者的 [SGAD-SLAM 仓库](https://github.com/MachinePerceptionLab/SGAD-SLAM)。本仓库保存本机实验的命令、兼容性修改、指标与小型可视化产物，不重新发布作者的完整源码。
 
-目前完成了 TUM RGB-D `rgbd_dataset_freiburg1_desk` **592 个关联帧**的一次完整端到端运行，以及跟踪关键帧间隔的诊断。尚未复现论文的全部场景、多次运行平均和重建指标。
+目前完成了 TUM RGB-D `rgbd_dataset_freiburg1_desk` **592 个关联帧**的一次完整端到端运行、跟踪关键帧间隔的诊断，以及一次可观看建图过程的 [64 帧演示](demos/tum-desk-64/README.md)。尚未复现论文的全部场景、多次运行平均和重建指标。
 
 ## 结果一览
 
@@ -32,6 +32,7 @@ configs/tum_fr1_desk_kfreq8.yaml  诊断运行的建图输出配置
 patches/runtime_compat.patch      本机内存、构建和评测读取兼容性改动
 scripts/                         环境/GPU 检查、跟踪诊断、结果预览
 results/tum_fr1_desk/             两组 JSON 指标、轨迹图、对比图和短视频
+demos/tum-desk-64/                小数据运行脚本、指标和流程视频
 ```
 
-请从[复现步骤](docs/reproduction.md)开始。完整 TUM 数据、环境、日志、逐帧渲染图和约 16 GB/场景的高斯子地图保存在本机，不纳入 Git。原始数据应从数据集官方来源取得；作者源码应从作者仓库取得。
+请从[复现步骤](docs/reproduction.md)开始。`scripts/prepare_source.sh` 可检出指定版本的作者源码并应用本仓库的兼容补丁；`scripts/make_tum_subset.py` 可生成 64 帧演示所用的小数据集。完整 TUM 数据、环境、日志、逐帧渲染图和约 16 GB/场景的高斯子地图保存在本机，不纳入 Git。原始数据应从数据集官方来源取得；作者源码应从作者仓库取得。
