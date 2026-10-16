@@ -1,0 +1,3 @@
+inherit_from: configs_map/TUM_RGBD/rgbd_dataset_freiburg1_desk.yaml
+data:
+  output_path: experiments/results/rgbd_dataset_freiburg1_desk_kfreq8/

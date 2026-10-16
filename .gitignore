@@ -1,0 +1,18 @@
+# Large input data and generated experiment artifacts
+dataset/
+experiments/
+*.ckpt
+*.pth
+*.tgz
+*.tar
+*.log
+
+# Local environments and Python/build outputs
+.venv/
+venv/
+__pycache__/
+*.pyc
+build/
+dist/
+*.egg-info/
+.pytest_cache/

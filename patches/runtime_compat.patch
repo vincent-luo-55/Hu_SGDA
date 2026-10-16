@@ -1,0 +1,65 @@
+diff --git a/slam.py b/slam.py
+index d121a8c..793ea2d 100755
+--- a/slam.py
++++ b/slam.py
+@@ -99,7 +99,8 @@ class SGAD_SLAM(SLAMParameters):
+                                     cx=self.cx, cy=self.cy, fx=self.fx, fy=self.fy)
+         self.shared_new_points = SharedPoints(test_points.shape[0])
+         self.shared_new_gaussians = SharedGaussians(test_points.shape[0])
+-        self.shared_target_gaussians = SharedTargetPoints(1000000000)
++        max_points_per_frame = len(self.downsample_idxs[0])
++        self.shared_target_gaussians = SharedTargetPoints(max_points_per_frame * num_final_poses)
+         self.end_of_dataset = torch.zeros((1)).int()
+         self.is_tracking_keyframe_shared = torch.zeros((1)).int()
+         self.is_tracking_scene_keyframe_shared = torch.zeros((1)).int()
+diff --git a/src/evaluation/evaluator.py b/src/evaluation/evaluator.py
+index 71cc105..552d05e 100755
+--- a/src/evaluation/evaluator.py
++++ b/src/evaluation/evaluator.py
+@@ -102,7 +102,11 @@ class Evaluator(object):
+             self.estimated_c2w = torch2np(torch.load(self.checkpoint_path / "estimated_c2w_mapper.ckpt", map_location=self.device))
+ 
+         for submap_path in tqdm(submaps_paths):
+-            submap = torch.load(submap_path, map_location=self.device)
++            submap = torch.load(submap_path, map_location="cpu")
++            submap["gaussian_params"] = {
++                key: value.to(self.device) if torch.is_tensor(value) else value
++                for key, value in submap["gaussian_params"].items()
++            }
+             gaussian_model = GaussianModel()
+             gaussian_model.training_setup(opt_settings)
+             gaussian_model.restore_from_params(
+diff --git a/submodules/fast_gicp/CMakeLists.txt b/submodules/fast_gicp/CMakeLists.txt
+index b616fc5..45fe6e1 100755
+--- a/submodules/fast_gicp/CMakeLists.txt
++++ b/submodules/fast_gicp/CMakeLists.txt
+@@ -8,7 +8,7 @@ option(BUILD_PYTHON_BINDINGS "Build python bindings" OFF)
+ 
+ set(CMAKE_BUILD_TYPE "Release")
+ 
+-find_package(PCL REQUIRED)
++find_package(PCL REQUIRED COMPONENTS common registration filters kdtree search)
+ find_package(Eigen3 REQUIRED)
+ add_definitions(${PCL_DEFINITIONS})
+ 
+diff --git a/submodules/fast_gicp/setup.py b/submodules/fast_gicp/setup.py
+index 6acf2d7..983d0d8 100755
+--- a/submodules/fast_gicp/setup.py
++++ b/submodules/fast_gicp/setup.py
+@@ -50,6 +50,7 @@ class CMakeBuild(build_ext):
+             "-DCMAKE_BUILD_TYPE={}".format(cfg),  # not used on MSVC, but no harm,
+             # "-DBUILD_VGICP_CUDA=ON",
+             "-DBUILD_PYTHON_BINDINGS=ON",
++            "-DBUILD_apps=OFF",
+         ]
+         build_args = []
+ 
+diff --git a/submodules/simple-knn/simple_knn.cu b/submodules/simple-knn/simple_knn.cu
+index e72e4c9..df436d0 100755
+--- a/submodules/simple-knn/simple_knn.cu
++++ b/submodules/simple-knn/simple_knn.cu
+@@ -1,3 +1,4 @@
++#include <cfloat>
+ /*
+  * Copyright (C) 2023, Inria
+  * GRAPHDECO research group, https://team.inria.fr/graphdeco
